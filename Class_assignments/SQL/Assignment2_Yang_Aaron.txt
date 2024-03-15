@@ -1,0 +1,65 @@
+
+
+-- Exercise 1
+
+SELECT DISTINCT vendor_name
+FROM vendors
+WHERE vendor_id IN (SELECT vendor_id FROM invoices)
+ORDER BY vendor_name;
+
+-- Exercise 2
+
+SELECT invoice_number, invoice_total
+FROM invoices
+WHERE payment_total > (
+SELECT AVG(payment_total)
+FROM invoices
+WHERE payment_total > 0
+)
+ORDER BY invoice_total DESC;
+
+-- Exercise 3
+
+SELECT account_number, account_description
+FROM general_ledger_accounts
+WHERE NOT EXISTS(
+SELECT 1
+FROM invoice_line_items
+WHERE invoice_line_items.account_number = general_ledger_accounts.account_number
+)
+ORDER BY account_number;
+
+-- Exercise 4
+SELECT vendors.vendor_name, invoice_line_items.invoice_id, invoice_line_items.invoice_sequence, invoice_line_items.line_item_amount
+
+-- We need to return the results from different tables, so we need to use JOIN to ensure we get the result
+-- because there is no same item in vendors and invoice_line_items tables. We need to build a bridge between table vendors and invoice_line_items
+
+FROM vendors JOIN invoices ON vendors.vendor_id = invoices.vendor_id
+JOIN invoice_line_items ON invoices.invoice_id = invoice_line_items.invoice_id
+WHERE invoice_line_items.invoice_id IN (
+    SELECT invoice_id
+    FROM Invoice_Line_Items
+    WHERE invoice_sequence > 1
+)
+ORDER BY vendors.vendor_name, invoice_line_items.invoice_id, invoice_line_items.invoice_sequence;
+
+-- Exercise 5
+-- the 1st statement
+
+SELECT vendor_id, MAX(invoice_total) AS largest_unpaid_invoice
+FROM invoices
+WHERE payment_total = 0
+GROUP BY vendor_id;
+
+-- the 2nd statement
+SELECT SUM(largest_unpaid_invoice) AS total_largest_unpaid_invoices
+FROM (
+    SELECT vendor_id, MAX(invoice_total) AS largest_unpaid_invoice
+    FROM invoices
+    WHERE payment_total = 0
+    GROUP BY vendor_id
+) AS subquery;
+
+
+
