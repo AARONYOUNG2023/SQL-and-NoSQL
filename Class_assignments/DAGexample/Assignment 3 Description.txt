@@ -1,0 +1,163 @@
+Hello students, 
+
+
+#Removed some rules, merged others, and added more descriptions to the rules. 
+#Additionally, more information has been included in general (i.e., a query to find cycles).
+#Please refer to the attached Python code and the CSV file for a demonstration. It contains a couple of queries to execute (loading, findingParents, and emptying the graph) while recording the time for each operation.
+
+-----
+
+This assignment is mandatory. 
+I will consider the top two grades from Assignment 1, Assignment 2, Quiz 1, and Quiz 2, and. 
+It's group-based, with the same groups working on the project. 
+The due date is December 6 at 11:59 PM. I will open the assignment in the Outline section in a few days.
+
+------
+
+First, don't be intimidated by the length of the assignment description ;). It's simple and focuses on working with Directed Acyclic Graphs (DAGs). Please view the attached text file called 'DAGs_Importance_in_DS' to understand the significance of DAGs in data science and data engineering. The file contains links to some valuable resources.
+
+I believe having 8 days to complete this assignment is excessive since it's group-based one. 
+As mentioned in class, while I don't consider myself an expert in Python at all, I was able to solve it in about 4 hours or so. Most likely, I was lucky enough that day to finish it quickly!. The point is that the assignment is not easy, but not hard as well.
+Also, I completely understand that you might be busy or distracted at this point in the semester with other assignments, particularly as we are approaching the semester's end, and you may not have enough time to complete it in a day or two. The assignment is not complex. Most (or, I should say, all) students I've asked consider it to be an intermediate-level assignment. You just need to carefully apply the rules to your function. 
+
+This assignment is an idea that came to my mind a few months ago while exploring pathfinding algorithms, two of which we discussed in class (DFS and BFS). 
+After writing the code, I was able to perform various data science operations and DAGs traversal algorithms in Neo4j using Cypher with Python by creating large CSV files. 
+Additionally, many students have emailed me expressing interest in including DAGs in their project work. 
+I believe this practical assignment, defined as a data science task with Python algorithms, can be highly valuable.
+The code I wrote for this assignment helps me generate a huge amount of data for my research. So, I expect the same would be applied for you as well.
+
+Once you solve it, it will help you in upcoming classes, work, etc., to create 'parent-child relationship' type DAGs without the need to search for datasets.
+
+Advice: Start with a small dataset and test/debug your code. Then proceed to a larger dataset and so on until you ensure that your code generates correct CSV files. Once you write the code (it can be one function with an if statement or a switch statement, or other techniques), it can be used to generate any number of rows.
+
+-----
+
+Assignment and description:
+
+Generate CSV files with Python (see the attached Python code for demonstartion on the CSV file) containing three headers: parent, child, and relationshiptype. Ensure that the data in the CSV files represents a DAG, which can be hierarchically represented in an SQL table as an adjacency matrix. Given that CSV is similar to SQL tables, Pandas Dataframes, etc., it serves as an effective format.
+
+Rules for Generating CSV Files:
+
+Assume the CSV files have the following data in the third column (relationshiptype): M, O, star, A, R, E.
+
+To add data, follow the logic outlined below:
+
+Rule 1: Parent and child columns' records should form a composite key, meaning that no duplication is allowed.
+
+Rule 2: A parent can't have a child record equal to that parent. No pseudos. Also, a node can't have 'E(s)' and/or 'R(s)' relationships with any of its ancestors, including its parent, grandparent, or any node up to the root node.
+
+Rule 3: If a parent has 'M(s)' relationship(s) in the third column, they can have only 'M(s)' and/or 'O(s)' relationships with other children. (in addition to possible R and/or E relationships type)
+
+Rule 4: If a parent has 'O(s)' relationship(s) in the third column, they can have only 'M(s)' and/or 'O(s)' relationships with other children. (in addition to possible R and/or E relationships type)
+
+Rule 5: If a parent has 'star(s)' relationship(s) in the third column, it can have only 'star' children. (in addition to possible R and/or E relationships type)
+
+Rule 6: If a parent has 'A(s)' relationship(s) in the third column, it can have only 'A' relationship(s) with its children. (in addition to possible R and/or E relationships type)
+
+Rule 7: If a parent has 'M' relationship(s) in the third column, then it can't have 'R' and 'E' children.
+
+Rule 8: Ensure it's a connected DAG. It can contain cycles in certain cases. Check for cycles via a simple Cypher query. If there are cycles caused by 'E' or 'R' relationships, ignore them (don't consider them as cycles). Technically, there shouldn't be cycles except for this case in the generated CSV files.
+
+Rule 9: It's acceptable for a node to have more than one parent as long as the parents have 'R' and 'E' relationships with it. A node cannot have parent(s) with only 'R' or/and 'E' relationships. There should be one parent with other relationships to allow that. Note that a node can't have two parents in general, except for this case. 
+
+---
+
+
+Allow the parent (first column) to have duplicates. For example, Node1 can have multiple children, so Node1 will appear multiple times in the parent column, each corresponding to its children in the second column. See the attached CSV file - 'File CSVtoImport_DAGexample.csv'.
+
+Generate these CSVs in Python based on the above rules using a function with a random generator (simple suggestion) while adhering to the rules.
+
+For the first and second columns, use a string and an incremental integer value next to it (i.e., Node1, Node2, Node3, etc.).
+
+Using the LOAD command, load the CSV file with the three columns as node-relationship-node. For the 'File CSVtoImport_DAGexample.csv' that we went over in class, we executed the following command:
+
+LOAD CSV WITH HEADERS FROM 'file:///CSVFiletoImport_DAGexample.csv' AS line
+MERGE (n:Node {name: line.child})
+MERGE (m:Node {name: line.parent})
+MERGE (n)<-[r:isParentOf {rType: line.relationshiptype}]-(m)
+
+See the attached Python file for demonstration.
+
+
+You can use this approach for your task as well. Also, feel free to use the APOC library (i.e., apoc.periodic.commit) for loading CSV files, utilizing periodic commit, etc. I usually find this library helpful.
+See the attached picture (theCSVFileAttached_uploadedToNeo4j.png) that displays the DAG generated by Neo4j, illustrating a connected graph with special cases such as a node having, for example, two parents (one of them should be 'E' or 'R') and cycles caused by them.
+
+IMPORTANT: Ensure you have TWO labels. The provided LOAD command displays one label for both nodes, called 'Node.' You can edit it to assign the 'Parent' label for the parent nodes (CSV - column one) and the 'Child' label for the children nodes (CSV - column two). Relationships (CSV - column three) are already specified: M, O, star, A, R, E.
+
+As mentioned, include as many duplicated parents as possible in the first row while adhering to the rules. Create variations in depths; for instance, not just A pointing to B and B pointing to C. The depth can extend to a very large number. Ensure that you achieve a significant depth.
+
+
+**********
+
+Please see the attached CSV file, which is an example of a DAG generated from Python and adheres to the rules. It contains cycles. As mentioned, if the cycle is caused by relationships 'E' or 'R', then it's acceptable. The file illustrates how the graph must be connected, avoiding orphan nodes or groups of nodes separated from the graph, accepting child-with-twoOrMore-parents relationships as long as the other parent(s) has/have 'R' and/or 'E' relationships.
+
+In the CSV file, I have also included more description about the rules corresponding to the data in it. If you wish to load it and see the output, make sure to remove the merged cells containing the explanations and delete the text. It might not work. In that case, copy the three columns and paste them into a separate CSV file. The attached picture () displays the graph in Neo4j after uploading the CSV file.
+*********
+
+
+Tasks:
+
+After confirming that your code creates correct CSV files and adheres to the mentioned rules, generate CSV files containing 500, 1k, 10k, and 20k records. If you prefer larger CSVs, you can go up to millions of rows as long as your code is correct. It's up to you; big datasets are always a plus. Don't worry too much about the loading time.
+
+As mentioned in class, I was able to upload a CSV file that contains 2 million rows (DAG - three columns, like the attached CSV file) in approximately 550 seconds, all while concurrently running other software such as Neo4j, and especially, Google Chrome.
+
+My laptop specifications are: Intel(R) Core(TM) i7, 16.0 GB (15.8 GB usable), 4 cores, and 8 logical processors (11th Gen Intel(R) Core(TM) i7-1185G7 @ 3.00GHz). 
+Physical cores are the actual cores within the CPU. 
+Logical cores (sometimes called processors) represent the ability of a single core to handle 2 or more threads simultaneously. 
+For example, I have 4 cores, thus I have 8 logical cores. This is achieved through Hyperthreading, allowing a single physical core to execute two threads simultaneously. 
+If you have a 4-core processor with hyperthreading, the operating system would recognize that the machine has 8 logical cores.
+ 
+This is important if you want to learn Big Data using Spark on a single machine, simulating the nodes in a cluster as threads.
+
+
+0) Always make the first node called 'root'. It's good for traversals.
+
+Using the files you generated, do the following:
+
+1) DFS vs BFS performance in Cypher. Start node is 'root'.
+
+2) DFS vs BFS performance in the data science library. Start node is 'root'.
+
+3) DFS vs BFS performance in the APOC library. Start node is 'root'.
+
+4) All queries should be run using Python. Please see the attached Python code that shows how to connect to localhost and perform queries.
+
+5) Plot the results using the Matplotlib library or whatever you prefer. It's a pretty easy library, straightforward in our case.
+
+------------------------
+
+
+
+To install the APOC and data science libraries, create the database first, then click on the small database-look icon next to the database name. You should see a left panel that contains the database details page. Go to "Plugins" and install them.
+
+Once the installation is complete, you may need to restart the Neo4j database (if it's running).
+
+I would recommend restarting the database. After the database restarts, the Graph Data Science library should be available for use.
+
+
+--------------------------
+
+How to find cycles: 
+
+
+MATCH p=(n)-[*]->(n) RETURN nodes(p) 
+
+The query finds and shows all paths in a graph where a node is reachable from itself through any sequence of relationships (i.e., cycle). 
+The [*] represents any number of relationships, and nodes(p) gives the nodes along those paths.
+
+Remember Rule 8
+------------------------
+
+You can the time module to measure the performance. For example:
+
+import time
+
+startTime = time.time()
+# executing your query/algorithm/etc
+endTime = time.time()
+print("executing time is:", endTime - startTime, "seconds")
+
+See the attached Python file. 
+
+
+Best-
